@@ -1,0 +1,26 @@
+Partial Class FaceAPP_books
+    Inherits System.Web.UI.Page
+    Private Sub FaceAPP_books_Load(sender As Object, e As EventArgs) Handles Me.Load
+        Dim IsbnArray() As String = Request.QueryString("isbn").Split(",")
+        If IsbnArray.Length = 0 Then Return
+        Dim PicUrl As String = ""
+        Try
+            For Each isbn In IsbnArray
+                Dim webClient1 As New System.Net.WebClient
+                Dim result As String = ""
+                Try
+                    result = webClient1.DownloadString("https://search.books.com.tw/search/query/key/" & isbn)
+                    result = result.Substring(result.IndexOf("https://im1.book.com.tw") + 41, result.IndexOf("&", result.IndexOf("https://im1.book.com.tw")) - result.IndexOf("https://im1.book.com.tw") - 41)
+                Catch ex As Exception
+                    result = ""
+                End Try
+                PicUrl = PicUrl & ",""" & result & """"
+            Next
+        Catch ex As Exception
+            Dim a As String = ex.ToString
+            Response.Write("Error Occur.")
+        End Try
+        PicUrl = "{" & PicUrl.Substring(1, PicUrl.Length - 1) & "}"
+        Response.Write(PicUrl)
+    End Sub
+End Class
